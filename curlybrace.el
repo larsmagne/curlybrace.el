@@ -27,9 +27,9 @@
 
 (defvar curlybrace-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [(super f)] 'curlybrace-finish-element)
-    (define-key map [(super r)] 'curlybrace-remove-braces)
-    (define-key map [(super a)] 'curlybrace-add-braces)
+    (define-key map [(meta i)] 'curlybrace-finish-element)
+    (define-key map [(meta r)] 'curlybrace-remove-braces)
+    (define-key map [(meta p)] 'curlybrace-add-braces)
     map))
 
 (defvar curlybrace-finishings

@@ -29,7 +29,7 @@
   (let ((map (make-sparse-keymap)))
     (define-key map [(super f)] 'curlybrace-finish-element)
     (define-key map [(super r)] 'curlybrace-remove-braces)
-    (define-key map [(super a)] 'curlybrace-add-braceso)
+    (define-key map [(super a)] 'curlybrace-add-braces)
     map))
 
 (defvar curlybrace-finishings
@@ -72,6 +72,65 @@
 		   (looking-at regexp))
 	       (looking-at regexp))
 	return expansion))
+
+(defun curlybrace-add-braces ()
+  "Insert braces around the current statement."
+  (interactive)
+  (let ((position (point-marker))
+	(goal-column (curlybrace-column)))
+    (forward-line -1)
+    (while (>= (curlybrace-column) goal-column)
+      (forward-line -1))
+    (end-of-line)
+    (skip-chars-backward " \t")
+    (delete-region (point) (line-end-position))
+    (insert " {")
+    (goto-char position)
+    (forward-line 1)
+    (while (>= (curlybrace-column) goal-column)
+      (forward-line 1))
+    (if (looking-at "[ \t]*else")
+	(progn
+	  (skip-chars-forward " \t")
+	  (insert "} "))
+      (forward-line -1)
+      (end-of-line)
+      (insert "\n}")
+      (beginning-of-line))
+    (indent-for-tab-command)
+    (goto-char position)
+    (set-marker position nil)))
+
+(defun curlybrace-remove-braces ()
+  "Remove braces from the current statement."
+  (interactive)
+  (let ((position (point-marker))
+	(goal-column (curlybrace-column)))
+    (forward-line -1)
+    (while (>= (curlybrace-column) goal-column)
+      (forward-line -1))
+    (when (looking-at ".*\\( *{ *$\\)")
+      (delete-region (match-beginning 1) (match-end 1)))
+    (goto-char position)
+    (forward-line 1)
+    (while (>= (curlybrace-column) goal-column)
+      (forward-line 1))
+    (cond
+     ((looking-at "[ \t]*}[ \t]*$")
+      (delete-region (point) (progn (forward-line 1) (point))))
+     ((looking-at "[ \t]*} *")
+      (delete-region (match-beginning 0) (match-end 0))
+      (indent-for-tab-command))
+     (t
+      (message "No end brace")))
+    (goto-char position)
+    (set-marker position nil)))
+
+(defun curlybrace-column ()
+  (save-excursion
+    (beginning-of-line)
+    (skip-chars-forward " \t")
+    (current-column)))
 
 (provide 'curlybrace)
 

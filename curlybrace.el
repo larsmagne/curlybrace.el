@@ -65,13 +65,13 @@
     (set-marker position nil)))
 
 (defun curlybrace-find-expansion ()
-  (loop for (regexp expansion) in curlybrace-finishings
-	when (if (string-match "\\^" regexp)
-		 (save-excursion
-		   (beginning-of-line)
-		   (looking-at regexp))
-	       (looking-at regexp))
-	return expansion))
+  (cl-loop for (regexp expansion) in curlybrace-finishings
+	   when (if (string-match "\\^" regexp)
+		    (save-excursion
+		      (beginning-of-line)
+		      (looking-at regexp))
+		  (looking-at regexp))
+	   return expansion))
 
 (defun curlybrace-add-braces ()
   "Insert braces around the current statement."
